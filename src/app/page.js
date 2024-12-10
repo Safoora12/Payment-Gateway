@@ -45,7 +45,7 @@ export default function Home() {
       order,
       paymentLink: {
         expiryDateTime, // Use dynamically calculated expiry time
-        numberOfAllowedAttempts: "3",
+        numberOfAllowedAttempts: "7",
       },
     };
 
