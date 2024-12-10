@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios"; // Import Axios
 
 export default function Home() {
-  const [currency, setCurrency] = useState("PKR");
+  const [currency, setCurrency] = useState("USD");
   const [amount, setAmount] = useState(10);
   const [description, setDescription] = useState("");
   const [paymentLink, setPaymentLink] = useState("");
@@ -16,45 +16,7 @@ export default function Home() {
   };
 
   // Handle form submission
-  // const handleGenerateLink = async () => {
-  //   setLoading(true);
-  //   const order = {
-  //     currency,
-  //     amount,
-  //     id: generateOrderId(),
-  //     description,
-  //   };
 
-  //   const payload = {
-  //     apiOperation: "INITIATE_CHECKOUT",
-  //     checkoutMode: "PAYMENT_LINK",
-  //     interaction: {
-  //       operation: "PURCHASE",
-  //       merchant: {
-  //         name: "ARTEMAMEDICA",
-  //         url: "https://artemamed.com/",
-  //       },
-  //     },
-  //     order,
-  //     paymentLink: {
-  //       expiryDateTime: "2024-12-12T02:16:00.993Z",
-  //       numberOfAllowedAttempts: "3",
-  //     },
-  //   };
-
-  //   try {
-  //     const response = await axios.post("/api/payment", payload);
-  //     console.log("Response:", response.data);
-
-  //     if (response.data.paymentLink && response.data.paymentLink.url) {
-  //       setPaymentLink(response.data.paymentLink.url);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error:", error);
-  //   }
-
-  //   setLoading(false);
-  // };
   const handleGenerateLink = async () => {
     setLoading(true);
 
