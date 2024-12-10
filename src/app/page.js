@@ -1,101 +1,186 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import axios from "axios"; // Import Axios
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [currency, setCurrency] = useState("PKR");
+  const [amount, setAmount] = useState(10);
+  const [description, setDescription] = useState("");
+  const [paymentLink, setPaymentLink] = useState("");
+  const [loading, setLoading] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Generate random order ID function
+  const generateOrderId = () => {
+    return "ORD" + Math.floor(Math.random() * 1000000);
+  };
+
+  // Handle form submission
+  // const handleGenerateLink = async () => {
+  //   setLoading(true);
+  //   const order = {
+  //     currency,
+  //     amount,
+  //     id: generateOrderId(),
+  //     description,
+  //   };
+
+  //   const payload = {
+  //     apiOperation: "INITIATE_CHECKOUT",
+  //     checkoutMode: "PAYMENT_LINK",
+  //     interaction: {
+  //       operation: "PURCHASE",
+  //       merchant: {
+  //         name: "ARTEMAMEDICA",
+  //         url: "https://artemamed.com/",
+  //       },
+  //     },
+  //     order,
+  //     paymentLink: {
+  //       expiryDateTime: "2024-12-12T02:16:00.993Z",
+  //       numberOfAllowedAttempts: "3",
+  //     },
+  //   };
+
+  //   try {
+  //     const response = await axios.post("/api/payment", payload);
+  //     console.log("Response:", response.data);
+
+  //     if (response.data.paymentLink && response.data.paymentLink.url) {
+  //       setPaymentLink(response.data.paymentLink.url);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error:", error);
+  //   }
+
+  //   setLoading(false);
+  // };
+  const handleGenerateLink = async () => {
+    setLoading(true);
+
+    // Calculate expiry date (7 days from now)
+    const expiryDate = new Date();
+    expiryDate.setDate(expiryDate.getDate() + 7); // Add 7 days
+    const expiryDateTime = expiryDate.toISOString(); // Convert to ISO string
+
+    const order = {
+      currency,
+      amount,
+      id: generateOrderId(),
+      description,
+    };
+
+    const payload = {
+      apiOperation: "INITIATE_CHECKOUT",
+      checkoutMode: "PAYMENT_LINK",
+      interaction: {
+        operation: "PURCHASE",
+        merchant: {
+          name: "ARTEMAMEDICA",
+          url: "https://artemamed.com/",
+        },
+      },
+      order,
+      paymentLink: {
+        expiryDateTime, // Use dynamically calculated expiry time
+        numberOfAllowedAttempts: "3",
+      },
+    };
+
+    try {
+      const response = await axios.post("/api/payment", payload);
+      console.log("Response:", response.data);
+
+      if (response.data.paymentLink && response.data.paymentLink.url) {
+        setPaymentLink(response.data.paymentLink.url);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+
+    setLoading(false);
+  };
+
+
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100"
+
+    >
+      <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
+        <h1 className="text-2xl font-bold text-center mb-4">
+          Payment Link Generator
+        </h1>
+
+        {/* Form */}
+        <div className="space-y-4"
+        >
+          <div>
+            <label className="block text-gray-700">Currency</label>
+            <input
+              type="text"
+              value="USD" // Hardcoded to USD
+              readOnly // Makes the input field read-only
+              className="w-full p-2 border rounded bg-gray-100 cursor-not-allowed" // Styling for read-only look
+              placeholder="Currency"
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+
+          <div>
+            <label className="block text-gray-700">Amount</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Amount"
+            />
+          </div>
+
+          <div>
+            <label className="block text-gray-700">Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full p-2 border rounded"
+              placeholder="Order description"
+            />
+          </div>
+
+          {/* Button */}
+          <button
+            onClick={handleGenerateLink}
+            className="w-full bg-orange-600 text-white py-2 rounded hover:bg-orange-500"
           >
-            Read our docs
-          </a>
+            {loading ? "Generating..." : "Generate Link"}
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+        {/* Display the Payment Link */}
+        {paymentLink && (
+          <div className="mt-4 p-4 bg-green-100 rounded overflow-hidden">
+            <h2 className="font-bold">Payment Link</h2><br />
+            <p className="text-sm text-gray-700">
+              <a
+                href={paymentLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ wordBreak: 'break-all' }} // or use `wordWrap: 'break-word'`
+              >
+                {paymentLink}
+              </a>
+            </p>
+            <button
+              onClick={() => navigator.clipboard.writeText(paymentLink)}
+              className="mt-2 bg-green-600 text-white py-1 px-2 rounded hover:bg-green-500"
+            >
+              Copy Link
+            </button>
+          </div>
+        )}
+
+      </div>
     </div>
   );
 }
